@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontur — Studio Teks Decoy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --paper: #EEE7D6;
+            --paper-2: #E4DAC1;
+            --ink: #211D16;
+            --ink-soft: #645A47;
+            --line: #B9AC87;
+            --accent: #2E5A52;
+            --accent-ink: #EEE7D6;
+            --serif: 'Fraunces', serif;
+            --sans: 'IBM Plex Sans', -apple-system, sans-serif;
+            --mono: 'IBM Plex Mono', monospace;
+            --pad: clamp(16px, 3vw, 28px);
+            --gap: clamp(14px, 2.5vw, 22px);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: var(--sans);
+        }
+
+        .sheet {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: clamp(18px, 4vw, 40px) var(--pad) 60px;
+            position: relative;
+        }
+
+        /* registration marks — a print-plate convention, functional-looking not decorative */
+        .reg {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            pointer-events: none;
+        }
+
+        .reg::before,
+        .reg::after {
+            content: "";
+            position: absolute;
+            background: var(--ink-soft);
+        }
+
+        .reg::before {
+            left: 7px;
+            top: 0;
+            width: 2px;
+            height: 16px;
+        }
+
+        .reg::after {
+            left: 0;
+            top: 7px;
+            width: 16px;
+            height: 2px;
+        }
+
+        .reg-tl {
+            top: 14px;
+            left: 14px;
+        }
+
+        .reg-tr {
+            top: 14px;
+            right: 14px;
+        }
+
+        .reg-bl {
+            bottom: 14px;
+            left: 14px;
+            display: none;
+        }
+
+        .reg-br {
+            bottom: 14px;
+            right: 14px;
+            display: none;
+        }
+
+        @media (min-width:768px) {
+
+            .reg-bl,
+            .reg-br {
+                display: block;
+            }
+        }
+
+        header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding-bottom: 18px;
+            border-bottom: 2px solid var(--ink);
+            margin-bottom: 6px;
+        }
+
+        header::after {
+            content: none;
+        }
+
+        .wordmark {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mark-icon {
+            width: 34px;
+            height: 34px;
+            flex-shrink: 0;
+        }
+
+        .mark-title {
+            font-family: var(--serif);
+            font-weight: 700;
+            font-size: clamp(24px, 3.4vw, 32px);
+            letter-spacing: -.01em;
+        }
+
+        .mark-title em {
+            font-style: italic;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .plate-meta {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--ink-soft);
+            text-align: right;
+            line-height: 1.7;
+            letter-spacing: .02em;
+        }
+
+        .plate-meta b {
+            color: var(--ink);
+            font-weight: 500;
+        }
+
+        .subline {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--ink-soft);
+            letter-spacing: .03em;
+            padding: 10px 0 var(--gap);
+            border-bottom: 1px solid var(--line);
+            margin-bottom: var(--gap);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-areas: "preview" "controls";
+            gap: var(--gap);
+        }
+
+        @media (min-width:1024px) {
+            .layout {
+                grid-template-areas: "controls preview";
+                grid-template-columns: 322px 1fr;
+                align-items: start;
+            }
+        }
+
+        .panel {
+            grid-area: controls;
+            background: var(--paper-2);
+            border: 1px solid var(--ink);
+            padding: var(--pad);
+        }
+
+        .preview-panel {
+            grid-area: preview;
+            background: #fff;
+            border: 1px solid var(--ink);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 320px;
+        }
+
+        .section-num {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            font-family: var(--mono);
+            font-size: 10.5px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--ink-soft);
+            margin: 22px 0 10px;
+        }
+
+        .section-num:first-child {
+            margin-top: 0;
+        }
+
+        .section-num i {
+            font-style: normal;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px 14px;
+        }
+
+        .field.full {
+            grid-column: 1/-1;
+        }
+
+        .field label {
+            display: block;
+            font-family: var(--mono);
+            font-size: 10.5px;
+            color: var(--ink-soft);
+            margin-bottom: 5px;
+            letter-spacing: .02em;
+        }
+
+        .field label .cap {
+            color: var(--ink);
+        }
+
+        input[type=text],
+        select {
+            width: 100%;
+            background: var(--paper);
+            border: none;
+            border-bottom: 1.5px solid var(--ink-soft);
+            color: var(--ink);
+            padding: 8px 2px;
+            font-size: 14px;
+            font-family: var(--sans);
+            outline: none;
+            border-radius: 0;
+        }
+
+        input[type=text]:focus,
+        select:focus {
+            border-bottom-color: var(--accent);
+        }
+
+        .range-row {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        input[type=range] {
+            flex: 1;
+            accent-color: var(--accent);
+            height: 2px;
+            background: transparent;
+        }
+
+        .range-val {
+            font-family: var(--mono);
+            font-size: 11px;
+            width: 36px;
+            text-align: right;
+            color: var(--ink);
+            flex-shrink: 0;
+        }
+
+        input[type=color] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 30px;
+            border: 1px solid var(--ink-soft);
+            background: none;
+            padding: 2px;
+            cursor: pointer;
+            border-radius: 0;
+        }
+
+        input[type=color]::-webkit-color-swatch {
+            border: none;
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            grid-column: 1/-1;
+            padding-top: 2px;
+        }
+
+        .toggle-row span {
+            font-size: 13px;
+        }
+
+        .switch {
+            width: 34px;
+            height: 18px;
+            border: 1.5px solid var(--ink);
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .switch.on {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .switch::after {
+            content: "";
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            width: 12px;
+            height: 12px;
+            background: var(--ink);
+            transition: transform .15s;
+        }
+
+        .switch.on::after {
+            background: var(--paper);
+            transform: translateX(16px);
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        @media (max-width:380px) {
+            .actions {
+                flex-direction: column;
+            }
+        }
+
+        button {
+            font-family: var(--mono);
+            font-weight: 500;
+            font-size: 12.5px;
+            letter-spacing: .03em;
+            text-transform: uppercase;
+            border: 1.5px solid var(--ink);
+            border-radius: 0;
+            padding: 12px 14px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--ink);
+        }
+
+        .btn-primary {
+            background: var(--ink);
+            color: var(--paper);
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .btn-secondary {
+            flex: 1;
+        }
+
+        .btn-secondary:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary:not(:disabled):hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .note {
+            font-family: var(--mono);
+            font-size: 10.5px;
+            color: var(--ink-soft);
+            line-height: 1.6;
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid var(--line);
+        }
+
+        .preview-stage {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(18px, 4vw, 36px);
+        }
+
+        .stage-empty {
+            text-align: center;
+            color: var(--ink-soft);
+            font-family: var(--mono);
+            font-size: 12px;
+            line-height: 1.7;
+            max-width: 250px;
+        }
+
+        .stage-empty b {
+            color: var(--ink);
+        }
+
+        #stageContent svg {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+        }
+
+        .status-bar {
+            padding: 9px var(--pad);
+            border-top: 1px solid var(--ink);
+            font-family: var(--mono);
+            font-size: 10.5px;
+            color: var(--ink-soft);
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .status-bar b {
+            color: var(--accent);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sheet">
+        <span class="reg reg-tl"></span>
+        <span class="reg reg-tr"></span>
+        <span class="reg reg-bl"></span>
+        <span class="reg reg-br"></span>
+
+        <header>
+            <div class="wordmark">
+                <svg class="mark-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="none" stroke="#211D16" stroke-width="1.1">
+                        <circle cx="20" cy="20" r="17" />
+                        <circle cx="20" cy="20" r="13.5" />
+                        <circle cx="20" cy="20" r="10" />
+                    </g>
+                    <circle cx="20" cy="20" r="6.2" fill="#2E5A52" />
+                </svg>
+                <div class="mark-title">Kontur<em>.</em></div>
+            </div>
+            <div class="plate-meta">
+                <div>plat <b id="plateNo">No. 001</b></div>
+                <div>lapis latar + kontur</div>
+            </div>
+        </header>
+        <div class="subline">Susun dua lapis teks — latar buram di belakang, kontur tegas di depan.</div>
+
+        <div class="layout">
+
+            <div class="panel">
+
+                <div class="section-num"><i>01</i> Teks</div>
+                <div class="fields">
+                    <div class="field full">
+                        <label for="frontTextInput">Teks depan <span class="cap">(kontur)</span></label>
+                        <input type="text" id="frontTextInput" value="DECOY TEXT" maxlength="40">
+                    </div>
+                    <div class="field full">
+                        <label for="bgTextInput">Teks latar <span id="bgLenHint">(maks. 10 karakter)</span></label>
+                        <input type="text" id="bgTextInput" value="BACKGROUND" maxlength="10">
+                    </div>
+                    <div class="field full">
+                        <label for="sizePreset">Ukuran kanvas</label>
+                        <select id="sizePreset">
+                            <option value="1200x400">Lebar — 1200 × 400</option>
+                            <option value="1080x1080">Persegi — 1080 × 1080</option>
+                            <option value="1080x1350">Potret — 1080 × 1350</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section-num"><i>02</i> Latar</div>
+                <div class="fields">
+                    <div class="field">
+                        <label for="bgBlur">Blur <span class="cap" id="bgBlurVal">14px</span></label>
+                        <div class="range-row">
+                            <input type="range" id="bgBlur" min="10" max="30" value="14">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="bgOpacity">Opasitas <span class="cap" id="bgOpacityVal">70%</span></label>
+                        <div class="range-row">
+                            <input type="range" id="bgOpacity" min="10" max="100" value="70">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-num"><i>03</i> Kontur</div>
+                <div class="fields">
+                    <div class="field">
+                        <label for="ringCount">Garis <span class="cap" id="ringCountVal">7</span></label>
+                        <div class="range-row"><input type="range" id="ringCount" min="2" max="14" value="7"></div>
+                    </div>
+                    <div class="field">
+                        <label for="ringSpacing">Jarak <span class="cap" id="ringSpacingVal">6px</span></label>
+                        <div class="range-row"><input type="range" id="ringSpacing" min="2" max="14" value="6"></div>
+                    </div>
+                    <div class="field">
+                        <label for="ringThickness">Tebal <span class="cap" id="ringThicknessVal">2px</span></label>
+                        <div class="range-row"><input type="range" id="ringThickness" min="1" max="6" value="2"></div>
+                    </div>
+                    <div class="toggle-row">
+                        <span>Glow lembut</span>
+                        <div class="switch on" id="glowToggle"></div>
+                    </div>
+                </div>
+
+                <div class="section-num"><i>04</i> Warna</div>
+                <div class="fields">
+                    <div class="field"><label for="bgColor">Latar</label><input type="color" id="bgColor"
+                            value="#050505"></div>
+                    <div class="field"><label for="frontColor">Depan</label><input type="color" id="frontColor"
+                            value="#3c3c3c"></div>
+                    <div class="field"><label for="canvasBg">Kanvas</label><input type="color" id="canvasBg"
+                            value="#ffffff"></div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn-primary" id="generateBtn">Generate</button>
+                    <button class="btn-secondary" id="downloadBtn" disabled>Unduh PNG</button>
+                </div>
+
+                <div class="note">Render terjadi di perangkat kamu sendiri.</div>
+            </div>
+
+            <div class="preview-panel">
+                <div class="preview-stage">
+                    <div id="stageContent">
+                        <div class="stage-empty">Belum ada hasil.<br>Atur teks di panel, lalu klik <b>Generate</b>.
+                        </div>
+                    </div>
+                </div>
+                <div class="status-bar">
+                    <span id="statusLeft">status — menunggu</span>
+                    <span id="statusRight">1200 × 400</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const $ = (id) => document.getElementById(id);
+
+            const bgTextInput = $('bgTextInput');
+            const frontTextInput = $('frontTextInput');
+            const sizePreset = $('sizePreset');
+            const bgBlur = $('bgBlur');
+            const bgOpacity = $('bgOpacity');
+            const ringCount = $('ringCount');
+            const ringSpacing = $('ringSpacing');
+            const ringThickness = $('ringThickness');
+            const glowToggle = $('glowToggle');
+            const bgColor = $('bgColor');
+            const frontColor = $('frontColor');
+            const canvasBg = $('canvasBg');
+            const generateBtn = $('generateBtn');
+            const downloadBtn = $('downloadBtn');
+            const stageContent = $('stageContent');
+            const statusLeft = $('statusLeft');
+            const statusRight = $('statusRight');
+            const bgLenHint = $('bgLenHint');
+            const plateNo = $('plateNo');
+
+            const FONT_FAMILY = "'Arial Black', 'Archivo Black', sans-serif";
+
+            // background text length is always capped at exactly the length of the front (decoy) text
+            function syncBgTextLimit() {
+                const limit = Math.max(1, frontTextInput.value.length);
+                bgTextInput.maxLength = limit;
+                if (bgTextInput.value.length > limit) {
+                    bgTextInput.value = bgTextInput.value.slice(0, limit);
+                }
+                bgLenHint.textContent = `(maks. ${limit} karakter)`;
+            }
+            frontTextInput.addEventListener('input', syncBgTextLimit);
+            bgTextInput.addEventListener('input', () => {
+                const limit = Math.max(1, frontTextInput.value.length);
+                if (bgTextInput.value.length > limit) {
+                    bgTextInput.value = bgTextInput.value.slice(0, limit);
+                }
+            });
+            syncBgTextLimit();
+
+            let glowOn = true;
+            glowToggle.addEventListener('click', () => {
+                glowOn = !glowOn;
+                glowToggle.classList.toggle('on', glowOn);
+            });
+
+            const bindRange = (el, out, suffix) => {
+                const update = () => out.textContent = el.value + (suffix || '');
+                el.addEventListener('input', update);
+                update();
+            };
+            bindRange(bgBlur, $('bgBlurVal'), 'px');
+            bindRange(bgOpacity, $('bgOpacityVal'), '%');
+            bindRange(ringCount, $('ringCountVal'), '');
+            bindRange(ringSpacing, $('ringSpacingVal'), 'px');
+            bindRange(ringThickness, $('ringThicknessVal'), 'px');
+
+            let lastPngUrl = null;
+            let plateCount = 0;
+
+            function escapeXml(str) {
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+            }
+
+            function buildContourFilter(id, count, spacing, thickness, blurSoft) {
+                let prims = '';
+                let mergeNodes = '';
+                for (let i = 0; i < count; i++) {
+                    const rInner = i * spacing;
+                    const rOuter = rInner + thickness;
+                    const innerRadius = rInner <= 0 ? 0.02 : rInner;
+                    prims += `<feMorphology in="SourceGraphic" operator="dilate" radius="${rOuter.toFixed(2)}" result="dOut${i}"/>`;
+                    prims += `<feMorphology in="SourceGraphic" operator="dilate" radius="${innerRadius.toFixed(2)}" result="dIn${i}"/>`;
+                    prims += `<feComposite in="dOut${i}" in2="dIn${i}" operator="xor" result="ring${i}"/>`;
+                    mergeNodes += `<feMergeNode in="ring${i}"/>`;
+                }
+                return `
+    <filter id="${id}" x="-60%" y="-60%" width="220%" height="220%">
+      ${prims}
+      <feMerge result="ringsMerged">${mergeNodes}</feMerge>
+      <feGaussianBlur in="ringsMerged" stdDeviation="${blurSoft}"/>
+    </filter>`;
+            }
+
+            function buildSvg(opts) {
+                const {
+                    w, h, bgText, frontText,
+                    bgBlurPx, bgOpac, count, spacing, thickness,
+                    showGlow, colBg, colFront, colCanvas
+                } = opts;
+
+                const bgFontSize = h * 0.62;
+                const frontFontSize = h * 0.42;
+
+                // background text width must match the front (decoy) text width exactly —
+                // it must never bleed past the decoy's left/right edges.
+                const sharedTextLength = w * 0.82;
+
+                const filterId = 'contourFilter';
+                const contourDefs = buildContourFilter(filterId, count, spacing, thickness, 0.5);
+
+                return `
+<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+  <defs>
+    <filter id="bgBlurFilter" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="${bgBlurPx}"/>
+    </filter>
+    <filter id="glowFilter" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="${Math.max(4, spacing * 1.4)}"/>
+    </filter>
+    ${contourDefs}
+  </defs>
+
+  <!-- entire background plate (fill + text) blurred together as one -->
+  <g filter="url(#bgBlurFilter)">
+    <rect x="-15%" y="-15%" width="130%" height="130%" fill="${colCanvas}"/>
+    <text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle"
+          font-family="${FONT_FAMILY}" font-weight="900"
+          font-size="${bgFontSize}" letter-spacing="2"
+          textLength="${sharedTextLength}" lengthAdjust="spacingAndGlyphs"
+          fill="${colBg}" opacity="${bgOpac}">${escapeXml(bgText)}</text>
+  </g>
+
+  ${showGlow ? `
+  <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle"
+        font-family="${FONT_FAMILY}" font-weight="900"
+        font-size="${frontFontSize}" letter-spacing="1"
+        textLength="${sharedTextLength}" lengthAdjust="spacingAndGlyphs"
+        fill="${colFront}" opacity="0.45"
+        filter="url(#glowFilter)">${escapeXml(frontText)}</text>` : ''}
+
+  <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle"
+        font-family="${FONT_FAMILY}" font-weight="900"
+        font-size="${frontFontSize}" letter-spacing="1"
+        textLength="${sharedTextLength}" lengthAdjust="spacingAndGlyphs"
+        fill="${colFront}"
+        filter="url(#${filterId})">${escapeXml(frontText)}</text>
+</svg>`;
+            }
+
+            function currentOptions() {
+                const [w, h] = sizePreset.value.split('x').map(Number);
+                const frontText = frontTextInput.value || 'DECOY';
+                let bgText = bgTextInput.value || 'BACKGROUND';
+                if (bgText.length > frontText.length) {
+                    bgText = bgText.slice(0, frontText.length);
+                }
+                return {
+                    w, h,
+                    bgText,
+                    frontText,
+                    bgBlurPx: Math.max(10, Number(bgBlur.value)),
+                    bgOpac: Number(bgOpacity.value) / 100,
+                    count: Number(ringCount.value),
+                    spacing: Number(ringSpacing.value),
+                    thickness: Number(ringThickness.value),
+                    showGlow: glowOn,
+                    colBg: bgColor.value,
+                    colFront: frontColor.value,
+                    colCanvas: canvasBg.value
+                };
+            }
+
+            function render() {
+                const opts = currentOptions();
+                const svgString = buildSvg(opts);
+
+                stageContent.innerHTML = svgString;
+                statusLeft.textContent = 'status — dirender';
+                statusRight.textContent = `${opts.w} × ${opts.h} · garis ${opts.count}`;
+
+                plateCount += 1;
+                plateNo.textContent = `No. ${String(plateCount).padStart(3, '0')}`;
+
+                const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const img = new Image();
+                img.onload = function () {
+                    const scale = 2;
+                    const canvas = document.createElement('canvas');
+                    canvas.width = opts.w * scale;
+                    canvas.height = opts.h * scale;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = opts.colCanvas;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    URL.revokeObjectURL(url);
+                    canvas.toBlob(function (pngBlob) {
+                        if (lastPngUrl) URL.revokeObjectURL(lastPngUrl);
+                        lastPngUrl = URL.createObjectURL(pngBlob);
+                        downloadBtn.disabled = false;
+                    }, 'image/png');
+                };
+                img.onerror = function () {
+                    statusLeft.textContent = 'status — gagal menyiapkan PNG';
+                };
+                img.src = url;
+            }
+
+            generateBtn.addEventListener('click', render);
+
+            function randomFileName(len) {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let out = '';
+                for (let i = 0; i < len; i++) {
+                    out += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return out;
+            }
+
+            downloadBtn.addEventListener('click', () => {
+                if (!lastPngUrl) return;
+                const a = document.createElement('a');
+                a.href = lastPngUrl;
+                a.download = `${randomFileName(30)}.png`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            });
+
+        })();
+    </script>
+</body>
+
+</html>
