@@ -4,25 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kontur — Studio Teks Decoy</title>
+    <title>Decoy Text</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link
-        href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
     <style>
         :root {
-            --paper: #EEE7D6;
-            --paper-2: #E4DAC1;
-            --ink: #211D16;
-            --ink-soft: #645A47;
-            --line: #B9AC87;
-            --accent: #2E5A52;
-            --accent-ink: #EEE7D6;
-            --serif: 'Fraunces', serif;
-            --sans: 'IBM Plex Sans', -apple-system, sans-serif;
-            --mono: 'IBM Plex Mono', monospace;
-            --pad: clamp(16px, 3vw, 28px);
-            --gap: clamp(14px, 2.5vw, 22px);
+            --bg: #111114;
+            --panel: #1a1a1f;
+            --field: #212127;
+            --line: #2c2c33;
+            --text: #eeece7;
+            --muted: #8f8e97;
+            --accent: #ff5a36;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+            --display: 'Space Grotesk', sans-serif;
+            --gap: clamp(12px, 2.5vw, 20px);
+            --pad: clamp(14px, 3vw, 24px);
         }
 
         * {
@@ -31,139 +31,36 @@
 
         body {
             margin: 0;
-            background: var(--paper);
-            color: var(--ink);
+            background: var(--bg);
+            color: var(--text);
             font-family: var(--sans);
         }
 
-        .sheet {
-            max-width: 1280px;
+        .wrap {
+            max-width: 1320px;
             margin: 0 auto;
-            padding: clamp(18px, 4vw, 40px) var(--pad) 60px;
-            position: relative;
-        }
-
-        /* registration marks — a print-plate convention, functional-looking not decorative */
-        .reg {
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            pointer-events: none;
-        }
-
-        .reg::before,
-        .reg::after {
-            content: "";
-            position: absolute;
-            background: var(--ink-soft);
-        }
-
-        .reg::before {
-            left: 7px;
-            top: 0;
-            width: 2px;
-            height: 16px;
-        }
-
-        .reg::after {
-            left: 0;
-            top: 7px;
-            width: 16px;
-            height: 2px;
-        }
-
-        .reg-tl {
-            top: 14px;
-            left: 14px;
-        }
-
-        .reg-tr {
-            top: 14px;
-            right: 14px;
-        }
-
-        .reg-bl {
-            bottom: 14px;
-            left: 14px;
-            display: none;
-        }
-
-        .reg-br {
-            bottom: 14px;
-            right: 14px;
-            display: none;
-        }
-
-        @media (min-width:768px) {
-
-            .reg-bl,
-            .reg-br {
-                display: block;
-            }
+            padding: var(--pad);
         }
 
         header {
             display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: 16px;
+            align-items: baseline;
+            gap: 10px;
             flex-wrap: wrap;
-            padding-bottom: 18px;
-            border-bottom: 2px solid var(--ink);
-            margin-bottom: 6px;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 16px;
+            margin-bottom: var(--gap);
         }
 
-        header::after {
-            content: none;
-        }
-
-        .wordmark {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .mark-icon {
-            width: 34px;
-            height: 34px;
-            flex-shrink: 0;
-        }
-
-        .mark-title {
-            font-family: var(--serif);
+        .brand {
+            font-family: var(--display);
             font-weight: 700;
-            font-size: clamp(24px, 3.4vw, 32px);
+            font-size: clamp(20px, 3vw, 26px);
             letter-spacing: -.01em;
         }
 
-        .mark-title em {
-            font-style: italic;
-            font-weight: 600;
+        .brand span {
             color: var(--accent);
-        }
-
-        .plate-meta {
-            font-family: var(--mono);
-            font-size: 11px;
-            color: var(--ink-soft);
-            text-align: right;
-            line-height: 1.7;
-            letter-spacing: .02em;
-        }
-
-        .plate-meta b {
-            color: var(--ink);
-            font-weight: 500;
-        }
-
-        .subline {
-            font-family: var(--mono);
-            font-size: 11px;
-            color: var(--ink-soft);
-            letter-spacing: .03em;
-            padding: 10px 0 var(--gap);
-            border-bottom: 1px solid var(--line);
-            margin-bottom: var(--gap);
         }
 
         .layout {
@@ -175,54 +72,72 @@
         @media (min-width:1024px) {
             .layout {
                 grid-template-areas: "controls preview";
-                grid-template-columns: 322px 1fr;
+                grid-template-columns: 340px 1fr;
                 align-items: start;
+            }
+        }
+
+        @media (min-width:1440px) {
+            .wrap {
+                max-width: 1440px;
+            }
+
+            .layout {
+                gap: 32px;
+            }
+
+            .panel {
+                padding: 26px;
+            }
+
+            .preview-stage {
+                min-height: 420px;
             }
         }
 
         .panel {
             grid-area: controls;
-            background: var(--paper-2);
-            border: 1px solid var(--ink);
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 12px;
             padding: var(--pad);
+            min-width: 0;
         }
 
         .preview-panel {
             grid-area: preview;
-            background: #fff;
-            border: 1px solid var(--ink);
-            position: relative;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            min-height: 320px;
+            min-width: 0;
         }
 
-        .section-num {
-            display: flex;
-            align-items: baseline;
-            gap: 8px;
+        .label {
             font-family: var(--mono);
             font-size: 10.5px;
             text-transform: uppercase;
-            letter-spacing: .08em;
-            color: var(--ink-soft);
-            margin: 22px 0 10px;
+            letter-spacing: .07em;
+            color: var(--muted);
+            margin: 18px 0 8px;
         }
 
-        .section-num:first-child {
+        .label:first-child {
             margin-top: 0;
-        }
-
-        .section-num i {
-            font-style: normal;
-            color: var(--accent);
-            font-weight: 500;
         }
 
         .fields {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 12px 14px;
+            grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+            gap: 10px 12px;
+            min-width: 0;
+        }
+
+        .field {
+            margin-bottom: 0;
+            min-width: 0;
         }
 
         .field.full {
@@ -231,55 +146,52 @@
 
         .field label {
             display: block;
-            font-family: var(--mono);
-            font-size: 10.5px;
-            color: var(--ink-soft);
+            font-size: 12px;
+            color: var(--muted);
             margin-bottom: 5px;
-            letter-spacing: .02em;
-        }
-
-        .field label .cap {
-            color: var(--ink);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         input[type=text],
         select {
             width: 100%;
-            background: var(--paper);
-            border: none;
-            border-bottom: 1.5px solid var(--ink-soft);
-            color: var(--ink);
-            padding: 8px 2px;
-            font-size: 14px;
-            font-family: var(--sans);
+            background: var(--field);
+            border: 1px solid var(--line);
+            color: var(--text);
+            border-radius: 7px;
+            padding: 9px 10px;
+            font-size: 13.5px;
+            font-family: inherit;
             outline: none;
-            border-radius: 0;
         }
 
         input[type=text]:focus,
         select:focus {
-            border-bottom-color: var(--accent);
+            border-color: var(--accent);
         }
 
         .range-row {
             display: flex;
             align-items: center;
-            gap: 9px;
+            gap: 8px;
+            min-width: 0;
         }
 
         input[type=range] {
             flex: 1;
+            min-width: 0;
             accent-color: var(--accent);
-            height: 2px;
-            background: transparent;
+            height: 3px;
         }
 
         .range-val {
             font-family: var(--mono);
-            font-size: 11px;
-            width: 36px;
+            font-size: 11.5px;
+            width: 34px;
             text-align: right;
-            color: var(--ink);
+            color: var(--text);
             flex-shrink: 0;
         }
 
@@ -287,15 +199,16 @@
             -webkit-appearance: none;
             appearance: none;
             width: 100%;
-            height: 30px;
-            border: 1px solid var(--ink-soft);
+            height: 34px;
+            border: 1px solid var(--line);
+            border-radius: 7px;
             background: none;
             padding: 2px;
             cursor: pointer;
-            border-radius: 0;
         }
 
         input[type=color]::-webkit-color-swatch {
+            border-radius: 5px;
             border: none;
         }
 
@@ -303,48 +216,52 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            background: var(--field);
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            padding: 9px 11px;
             grid-column: 1/-1;
-            padding-top: 2px;
         }
 
         .toggle-row span {
-            font-size: 13px;
+            font-size: 12.5px;
         }
 
         .switch {
             width: 34px;
-            height: 18px;
-            border: 1.5px solid var(--ink);
+            height: 19px;
+            background: #34343c;
+            border-radius: 99px;
             position: relative;
             cursor: pointer;
             flex-shrink: 0;
+            transition: background .15s;
         }
 
         .switch.on {
             background: var(--accent);
-            border-color: var(--accent);
         }
 
         .switch::after {
             content: "";
             position: absolute;
-            top: 1px;
-            left: 1px;
-            width: 12px;
-            height: 12px;
-            background: var(--ink);
+            top: 2px;
+            left: 2px;
+            width: 15px;
+            height: 15px;
+            background: #fff;
+            border-radius: 50%;
             transition: transform .15s;
         }
 
         .switch.on::after {
-            background: var(--paper);
-            transform: translateX(16px);
+            transform: translateX(15px);
         }
 
         .actions {
             display: flex;
             gap: 10px;
-            margin-top: 24px;
+            margin-top: 20px;
         }
 
         @media (max-width:380px) {
@@ -354,50 +271,38 @@
         }
 
         button {
-            font-family: var(--mono);
-            font-weight: 500;
-            font-size: 12.5px;
-            letter-spacing: .03em;
-            text-transform: uppercase;
-            border: 1.5px solid var(--ink);
-            border-radius: 0;
-            padding: 12px 14px;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 13.5px;
+            border: none;
+            border-radius: 7px;
+            padding: 11px 14px;
             cursor: pointer;
-            background: transparent;
-            color: var(--ink);
         }
 
         .btn-primary {
-            background: var(--ink);
-            color: var(--paper);
+            background: var(--accent);
+            color: #160f08;
             flex: 1;
         }
 
-        .btn-primary:hover {
-            background: var(--accent);
-            border-color: var(--accent);
-        }
-
         .btn-secondary {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--line);
             flex: 1;
         }
 
         .btn-secondary:disabled {
-            opacity: .4;
+            opacity: .45;
             cursor: not-allowed;
         }
 
-        .btn-secondary:not(:disabled):hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .note {
-            font-family: var(--mono);
-            font-size: 10.5px;
-            color: var(--ink-soft);
-            line-height: 1.6;
-            margin-top: 18px;
+        .hint {
+            font-size: 11px;
+            color: var(--muted);
+            line-height: 1.5;
+            margin-top: 16px;
             padding-top: 14px;
             border-top: 1px solid var(--line);
         }
@@ -407,20 +312,22 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: clamp(18px, 4vw, 36px);
+            background: var(--field);
+            padding: clamp(16px, 4vw, 32px);
+            min-height: 260px;
         }
 
         .stage-empty {
             text-align: center;
-            color: var(--ink-soft);
+            color: var(--muted);
             font-family: var(--mono);
-            font-size: 12px;
-            line-height: 1.7;
-            max-width: 250px;
+            font-size: 12.5px;
+            line-height: 1.6;
+            max-width: 260px;
         }
 
         .stage-empty b {
-            color: var(--ink);
+            color: var(--text);
         }
 
         #stageContent svg {
@@ -432,10 +339,10 @@
 
         .status-bar {
             padding: 9px var(--pad);
-            border-top: 1px solid var(--ink);
+            border-top: 1px solid var(--line);
             font-family: var(--mono);
             font-size: 10.5px;
-            color: var(--ink-soft);
+            color: var(--muted);
             display: flex;
             justify-content: space-between;
             gap: 8px;
@@ -449,84 +356,77 @@
 </head>
 
 <body>
-    <div class="sheet">
-        <span class="reg reg-tl"></span>
-        <span class="reg reg-tr"></span>
-        <span class="reg reg-bl"></span>
-        <span class="reg reg-br"></span>
+    <div class="wrap">
 
         <header>
-            <div class="wordmark">
-                <svg class="mark-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                    <g fill="none" stroke="#211D16" stroke-width="1.1">
-                        <circle cx="20" cy="20" r="17" />
-                        <circle cx="20" cy="20" r="13.5" />
-                        <circle cx="20" cy="20" r="10" />
-                    </g>
-                    <circle cx="20" cy="20" r="6.2" fill="#2E5A52" />
-                </svg>
-                <div class="mark-title">Kontur<em>.</em></div>
-            </div>
-            <div class="plate-meta">
-                <div>plat <b id="plateNo">No. 001</b></div>
-                <div>lapis latar + kontur</div>
-            </div>
+            <div class="brand">DECOY TEXT</div>
         </header>
-        <div class="subline">Susun dua lapis teks — latar buram di belakang, kontur tegas di depan.</div>
 
         <div class="layout">
 
             <div class="panel">
 
-                <div class="section-num"><i>01</i> Teks</div>
+                <div class="label">Teks</div>
                 <div class="fields">
                     <div class="field full">
-                        <label for="frontTextInput">Teks depan <span class="cap">(kontur)</span></label>
-                        <input type="text" id="frontTextInput" value="DECOY TEXT" maxlength="40">
-                    </div>
-                    <div class="field full">
-                        <label for="bgTextInput">Teks latar <span id="bgLenHint">(maks. 10 karakter)</span></label>
+                        <label for="bgTextInput">Teks latar <span id="bgLenHint" style="opacity:.6;">(maks. 10
+                                karakter)</span></label>
                         <input type="text" id="bgTextInput" value="BACKGROUND" maxlength="10">
                     </div>
                     <div class="field full">
-                        <label for="sizePreset">Ukuran kanvas</label>
+                        <label for="frontTextInput">Teks decoy (depan)</label>
+                        <input type="text" id="frontTextInput" value="DECOY TEXT" maxlength="40">
+                    </div>
+                    <div class="field">
+                        <label for="sizePreset">Ukuran</label>
                         <select id="sizePreset">
-                            <option value="1200x400">Lebar — 1200 × 400</option>
-                            <option value="1080x1080">Persegi — 1080 × 1080</option>
-                            <option value="1080x1350">Potret — 1080 × 1350</option>
+                            <option value="1200x400">Lebar 1200×400</option>
+                            <option value="1080x1080">Persegi 1080²</option>
+                            <option value="1080x1350">Potret 1080×1350</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="section-num"><i>02</i> Latar</div>
+                <div class="label">Latar (blur seluruh background)</div>
                 <div class="fields">
                     <div class="field">
-                        <label for="bgBlur">Blur <span class="cap" id="bgBlurVal">14px</span></label>
+                        <label>Blur</label>
                         <div class="range-row">
-                            <input type="range" id="bgBlur" min="10" max="30" value="14">
+                            <input type="range" id="bgBlur" min="10" max="30" value="10">
+                            <span class="range-val" id="bgBlurVal">10px</span>
                         </div>
                     </div>
                     <div class="field">
-                        <label for="bgOpacity">Opasitas <span class="cap" id="bgOpacityVal">70%</span></label>
+                        <label>Opasitas teks</label>
                         <div class="range-row">
-                            <input type="range" id="bgOpacity" min="10" max="100" value="70">
+                            <input type="range" id="bgOpacity" min="0" max="100" value="70">
+                            <span class="range-val" id="bgOpacityVal">70%</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="section-num"><i>03</i> Kontur</div>
+                <div class="label">Garis kontur (teks depan)</div>
                 <div class="fields">
                     <div class="field">
-                        <label for="ringCount">Garis <span class="cap" id="ringCountVal">7</span></label>
-                        <div class="range-row"><input type="range" id="ringCount" min="2" max="14" value="7"></div>
+                        <label>Jml. garis</label>
+                        <div class="range-row">
+                            <input type="range" id="ringCount" min="2" max="14" value="7">
+                            <span class="range-val" id="ringCountVal">7</span>
+                        </div>
                     </div>
                     <div class="field">
-                        <label for="ringSpacing">Jarak <span class="cap" id="ringSpacingVal">6px</span></label>
-                        <div class="range-row"><input type="range" id="ringSpacing" min="2" max="14" value="6"></div>
+                        <label>Jarak</label>
+                        <div class="range-row">
+                            <input type="range" id="ringSpacing" min="2" max="14" value="6">
+                            <span class="range-val" id="ringSpacingVal">6px</span>
+                        </div>
                     </div>
                     <div class="field">
-                        <label for="ringThickness">Tebal <span class="cap" id="ringThicknessVal">2px</span></label>
-                        <div class="range-row"><input type="range" id="ringThickness" min="1" max="6" value="2"></div>
+                        <label>Tebal</label>
+                        <div class="range-row">
+                            <input type="range" id="ringThickness" min="1" max="6" value="2">
+                            <span class="range-val" id="ringThicknessVal">2px</span>
+                        </div>
                     </div>
                     <div class="toggle-row">
                         <span>Glow lembut</span>
@@ -534,14 +434,20 @@
                     </div>
                 </div>
 
-                <div class="section-num"><i>04</i> Warna</div>
+                <div class="label">Warna</div>
                 <div class="fields">
-                    <div class="field"><label for="bgColor">Latar</label><input type="color" id="bgColor"
-                            value="#050505"></div>
-                    <div class="field"><label for="frontColor">Depan</label><input type="color" id="frontColor"
-                            value="#3c3c3c"></div>
-                    <div class="field"><label for="canvasBg">Kanvas</label><input type="color" id="canvasBg"
-                            value="#ffffff"></div>
+                    <div class="field">
+                        <label for="bgColor">Latar</label>
+                        <input type="color" id="bgColor" value="#050505">
+                    </div>
+                    <div class="field">
+                        <label for="frontColor">Depan</label>
+                        <input type="color" id="frontColor" value="#3c3c3c">
+                    </div>
+                    <div class="field">
+                        <label for="canvasBg">Kanvas</label>
+                        <input type="color" id="canvasBg" value="#ffffff">
+                    </div>
                 </div>
 
                 <div class="actions">
@@ -549,18 +455,22 @@
                     <button class="btn-secondary" id="downloadBtn" disabled>Unduh PNG</button>
                 </div>
 
-                <div class="note">Render terjadi di perangkat kamu sendiri.</div>
+                <div class="hint">
+                    Semua proses render berjalan secara lokal di perangkat Anda.
+                </div>
             </div>
 
             <div class="preview-panel">
                 <div class="preview-stage">
                     <div id="stageContent">
-                        <div class="stage-empty">Belum ada hasil.<br>Atur teks di panel, lalu klik <b>Generate</b>.
+                        <div class="stage-empty">
+                            Belum ada hasil.<br>
+                            Atur teks &amp; parameter di panel, lalu klik <b>Generate</b>.
                         </div>
                     </div>
                 </div>
                 <div class="status-bar">
-                    <span id="statusLeft">status — menunggu</span>
+                    <span id="statusLeft">status: menunggu input</span>
                     <span id="statusRight">1200 × 400</span>
                 </div>
             </div>
@@ -571,6 +481,7 @@
     <script>
         (function () {
             const $ = (id) => document.getElementById(id);
+            const FONT_FAMILY = "'Archivo Black', sans-serif";
 
             const bgTextInput = $('bgTextInput');
             const frontTextInput = $('frontTextInput');
@@ -589,12 +500,10 @@
             const stageContent = $('stageContent');
             const statusLeft = $('statusLeft');
             const statusRight = $('statusRight');
+
             const bgLenHint = $('bgLenHint');
-            const plateNo = $('plateNo');
 
-            const FONT_FAMILY = "'Arial Black', 'Archivo Black', sans-serif";
-
-            // background text length is always capped at exactly the length of the front (decoy) text
+            // background text must never be longer than the decoy (front) text
             function syncBgTextLimit() {
                 const limit = Math.max(1, frontTextInput.value.length);
                 bgTextInput.maxLength = limit;
@@ -630,7 +539,6 @@
             bindRange(ringThickness, $('ringThicknessVal'), 'px');
 
             let lastPngUrl = null;
-            let plateCount = 0;
 
             function escapeXml(str) {
                 return String(str)
@@ -662,17 +570,15 @@
 
             function buildSvg(opts) {
                 const {
-                    w, h, bgText, frontText,
+                    w, h, bgText, frontText, fontFamily,
                     bgBlurPx, bgOpac, count, spacing, thickness,
                     showGlow, colBg, colFront, colCanvas
                 } = opts;
 
                 const bgFontSize = h * 0.62;
                 const frontFontSize = h * 0.42;
-
-                // background text width must match the front (decoy) text width exactly —
-                // it must never bleed past the decoy's left/right edges.
-                const sharedTextLength = w * 0.82;
+                const frontTextLength = w * 0.82;
+                const bgTextLength = frontTextLength; // background must never span wider than the decoy text
 
                 const filterId = 'contourFilter';
                 const contourDefs = buildContourFilter(filterId, count, spacing, thickness, 0.5);
@@ -689,28 +595,28 @@
     ${contourDefs}
   </defs>
 
-  <!-- entire background plate (fill + text) blurred together as one -->
+  <!-- entire background (fill + text) blurred together as one plate -->
   <g filter="url(#bgBlurFilter)">
     <rect x="-15%" y="-15%" width="130%" height="130%" fill="${colCanvas}"/>
     <text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle"
-          font-family="${FONT_FAMILY}" font-weight="900"
+          font-family="${fontFamily}" font-weight="900"
           font-size="${bgFontSize}" letter-spacing="2"
-          textLength="${sharedTextLength}" lengthAdjust="spacingAndGlyphs"
+          textLength="${bgTextLength}" lengthAdjust="spacingAndGlyphs"
           fill="${colBg}" opacity="${bgOpac}">${escapeXml(bgText)}</text>
   </g>
 
   ${showGlow ? `
   <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle"
-        font-family="${FONT_FAMILY}" font-weight="900"
+        font-family="${fontFamily}" font-weight="900"
         font-size="${frontFontSize}" letter-spacing="1"
-        textLength="${sharedTextLength}" lengthAdjust="spacingAndGlyphs"
+        textLength="${frontTextLength}" lengthAdjust="spacingAndGlyphs"
         fill="${colFront}" opacity="0.45"
         filter="url(#glowFilter)">${escapeXml(frontText)}</text>` : ''}
 
   <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle"
-        font-family="${FONT_FAMILY}" font-weight="900"
+        font-family="${fontFamily}" font-weight="900"
         font-size="${frontFontSize}" letter-spacing="1"
-        textLength="${sharedTextLength}" lengthAdjust="spacingAndGlyphs"
+        textLength="${frontTextLength}" lengthAdjust="spacingAndGlyphs"
         fill="${colFront}"
         filter="url(#${filterId})">${escapeXml(frontText)}</text>
 </svg>`;
@@ -727,6 +633,7 @@
                     w, h,
                     bgText,
                     frontText,
+                    fontFamily: FONT_FAMILY,
                     bgBlurPx: Math.max(10, Number(bgBlur.value)),
                     bgOpac: Number(bgOpacity.value) / 100,
                     count: Number(ringCount.value),
@@ -744,11 +651,8 @@
                 const svgString = buildSvg(opts);
 
                 stageContent.innerHTML = svgString;
-                statusLeft.textContent = 'status — dirender';
-                statusRight.textContent = `${opts.w} × ${opts.h} · garis ${opts.count}`;
-
-                plateCount += 1;
-                plateNo.textContent = `No. ${String(plateCount).padStart(3, '0')}`;
+                statusLeft.textContent = 'status: berhasil dirender';
+                statusRight.textContent = `${opts.w} × ${opts.h} · rings ${opts.count}`;
 
                 const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
@@ -770,7 +674,7 @@
                     }, 'image/png');
                 };
                 img.onerror = function () {
-                    statusLeft.textContent = 'status — gagal menyiapkan PNG';
+                    statusLeft.textContent = 'status: gagal menyiapkan PNG (pratinjau tetap tampil)';
                 };
                 img.src = url;
             }
